@@ -1,42 +1,46 @@
-// $(document).ready(function(){
-
+$(document).ready(function(){
   var $buttons = $('.buttons span');
   var $screen = $('#screen');
-  var decodeHtml = function(html) {
-    var txt = document.createElement("textarea");
-    txt.innerHTML = html;
+  var divisionCode = $buttons[1].innerHTML.charCodeAt(0);
+  var parseEquation = function(equation) {
+    var eq = equation.split('');
+    var operand = '';
+    var idx = 0;
 
-    return txt.value;
+    for (var i = 0; i < eq.length; i++) {
+
+      if (isNaN(parseInt(eq[i]))) {
+        idx = i;
+        operand = eq[i];
+      };
+    }
+
+    var x = parseInt(eq.slice(0, idx).join(''));
+    var y = parseInt(eq.slice(idx + 1).join(''));
+
+    eq = {
+      'operand': operand,
+      'idx': idx,
+      'x': x,
+      'y': y
+    }
+
+    return eq;
   }
   var doMath = function(eq) {
-    // var eq = decodeHtml(eq);
-    console.log(eq);
-    var getNumbers = function(str, index) {
-      var x = parseInt(eq.slice(0, idx));
-      var y = parseInt(eq.slice(idx + 1));
-      return { 'x': x, 'y': y };
-    }
-    console.log(eq.includes('÷'));
-    if (eq.includes('x')) {
-      var idx = eq.indexOf('x');
-      var numbers = getNumbers(eq, idx);
+    var eq = parseEquation(eq);
 
-      return $screen.empty().append(numbers.x * numbers.y);
+    if (eq.operand === 'x') {
+      return $screen.empty().append(eq.x * eq.y);
     }
-    else if (eq.includes('+')) {
-      var idx = eq.indexOf('+');
-      var numbers = getNumbers(eq, idx);
-
-      return $screen.empty().append(numbers.x + numbers.y);
+    else if (eq.operand === '+') {
+      return $screen.empty().append(eq.x + eq.y);
     }
-    else if (eq.includes('-')) {
-      var idx = eq.indexOf('-');
-      var numbers = getNumbers(eq, idx);
-
-      return $screen.empty().append(numbers.x - numbers.y);
+    else if (eq.operand === '-') {
+      return $screen.empty().append(eq.x - eq.y);
     }
-    else if (eq.includes('÷')) {
-      console.log('division');
+    else if (eq.operand.charCodeAt(0) === divisionCode) {
+      return $screen.empty().append(eq.x / eq.y);
     }
   }
   var calcClicked = function(event) {
@@ -57,19 +61,14 @@
       $screen.empty();
     }
     else if (opTxt === '=' ) {
-      doMath($screen.text());
+      var equation = $screen.text();
 
+      doMath(equation);
     }
     else {
       $screen.append(opTxt);
     }
   }
 
-
   $buttons.on('click', calcClicked);
-
-
-
-
-
-// });
+});
